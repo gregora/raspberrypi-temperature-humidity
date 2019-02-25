@@ -1,0 +1,250 @@
+<html>
+<head>
+<title>Temperature and humidity</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<style>
+
+	canvas{
+
+		width: calc(100% - 20px) !important;
+		max-width: 1000px;
+		margin-top: 30px;
+		margin-bottom: 20px;
+		margin-left: 10px;
+
+	}
+
+	body {
+
+		max-width: 1020px;
+		margin: auto;
+
+	}
+
+	#data{
+
+		padding: 10px;
+		padding-top: 30px;
+		font-size: 20px;
+
+	}
+
+	span{
+
+		margin-bottom: 10px;
+
+	}
+
+</style>
+
+<body>
+
+	<div id="data">
+
+	Current temperature: <span id="temp">Loading ...</span><br>
+
+	Current humidity: <span id="hum">Loading ...</span>
+
+	</div>
+
+	<canvas id="chart"></canvas>
+
+	<canvas id="chart2"></canvas>
+
+
+
+</body>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+<script>
+
+
+var socket = io();
+
+data=[];
+hum=[];
+labels=[];
+
+expe=[];
+
+
+socket.on("alldata", function(info){
+	data=[];
+	hum=[];
+	labels=[];
+
+	expe=[];
+
+	console.log("Received data");
+
+	for(var x=0; x<info.length; x=x+100){
+
+		if(info[x].temperature<50){
+
+			data.push(info[x].temperature);
+			hum.push(info[x].humidity);
+			var date=new Date(info[x].time*1000);
+			labels.push(date.getHours()+"h "+date.getDate()+"/"+(date.getMonth()+1));
+			//labels.push(info[x].time);
+			expe.push({x: date, y: info[x].temperature});
+
+		}
+
+		}
+
+
+	redraw();
+
+
+
+	});
+
+socket.on("data", function(data){
+
+	console.log("Received current temperature and humidity data");
+
+	document.getElementById("temp").innerHTML=data[0]+"°C";
+
+	document.getElementById("hum").innerHTML=data[1]+"%";
+
+	//data.push();
+
+
+  });
+
+
+
+
+
+
+function redraw(){
+
+
+
+	var ctx = document.getElementById("chart").getContext('2d');
+	var myChart = new Chart(ctx, {
+		type: 'line',
+		data: {
+			labels: labels,
+
+			datasets: [{
+				label: 'temperature',
+				data: data,
+				borderWidth: 0,
+			}]
+		},
+		options: {
+			scales: {
+				yAxes: [{
+					ticks: {
+						beginAtZero:true,
+					}
+				}],
+				xAxes: [{
+					ticks: {
+						autoSkip: true,
+						autoSkipPadding: 5,
+					}
+				}],
+			},
+			elements:{
+				point: {
+
+						radius: 2,
+
+					}
+				}
+		}
+	});
+
+	/*
+	var ctx = document.getElementById("chart");
+	var myChart = new Chart(ctx, {
+	  type: 'line',
+	  data: {
+		datasets: [{
+		  label: 'temperature',
+		  data: expe,
+		  borderWidth: 0,
+		}],
+	  },
+	  options: {
+		title: {
+		  display: true,
+		  text: 'Chart.js - Fixed X and Y Axis',
+		},
+		scales: {
+		  xAxes: [{
+			type: 'linear',
+			position: 'bottom',
+			ticks: {
+
+			},
+			time: {
+
+				unit: "day",
+
+				}
+		  }],
+		  yAxes: [{
+			ticks: {
+
+				beginAtZero: true,
+
+			}
+		  }]
+		},
+		elements: {
+
+			point: {
+
+				radius: 2,
+
+				}
+
+			}
+	  }
+	});*/
+
+
+
+
+
+	var ctx2 = document.getElementById("chart2").getContext('2d');
+	var myChart2 = new Chart(ctx2, {
+		type: 'line',
+		data: {
+			labels: labels,
+
+			datasets: [{
+				label: 'humidity',
+				data: hum,
+				borderWidth: 0,
+			}]
+		},
+		options: {
+			scales: {
+				yAxes: [{
+					ticks: {
+						beginAtZero:false,
+					}
+				}]
+			},
+			elements:{
+				point: {
+
+						radius: 2,
+
+					}
+				}
+		}
+	});
+
+
+}
+
+
+
+</script>
+</html>
