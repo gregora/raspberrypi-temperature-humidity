@@ -135,14 +135,21 @@ con.connect(function(err){
 
 	  socket.emit("alldata", alldata);
 
+
+    if(r){
+		  if(r.temperature!=0 && r.humidity!=0){
+  		  d = new Date();
+  			n = d.getTime();
+  			socket.emit("data", [r.temperature, r.humidity, sumT/count, sumH/count, n]);
+		    }
+		}
+
+
+
+
 	  //console.log(alldata);
 
-    send();
-
 	  setInterval(send, 60000);
-
-    send();
-
 
 	  function send(){
 

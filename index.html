@@ -69,6 +69,16 @@ labels=[];
 expe=[];
 
 
+var timestamp = new Date();
+timestamp = (timestamp-(timestamp%1000))/1000; //remove last 3 digits
+
+const time_in_seconds = [3600 /*seconds in one hour*/, 86400 /*seconds in a day*/, 604800 /*seconds in a week*/, 2592000 /*seconds in a 30 day month*/, timestamp /*all time*/];
+
+var minTime=timestamp - time_in_seconds[2];
+
+
+
+
 socket.on("alldata", function(info){
 	data=[];
 	hum=[];
@@ -80,7 +90,7 @@ socket.on("alldata", function(info){
 
 	for(var x=0; x<info.length; x=x+100){
 
-		if(info[x].temperature<50){
+		if(info[x].temperature<50 && info[x].time>minTime){
 
 			data.push(info[x].temperature);
 			hum.push(info[x].humidity);
@@ -89,7 +99,9 @@ socket.on("alldata", function(info){
 			//labels.push(info[x].time);
 			expe.push({x: date, y: info[x].temperature});
 
+
 		}
+
 
 		}
 
@@ -229,6 +241,14 @@ function redraw(){
 					ticks: {
 						beginAtZero:false,
 					}
+				}],
+				xAxes: [{
+
+					ticks: {
+						autoSkip: true,
+						autoSkipPadding: 5,
+					}
+
 				}]
 			},
 			elements:{
