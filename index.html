@@ -5,6 +5,12 @@
 </head>
 <style>
 
+	*{
+
+		font-family: sans-serif;
+
+	}
+
 	canvas{
 
 		width: calc(100% - 20px) !important;
@@ -36,6 +42,23 @@
 
 	}
 
+	#select {
+
+		padding: 10px;
+		padding-top: 20px;
+		padding-bottom: 20px;
+		border-top: solid grey 1px;
+		margin-top: 20px;
+
+	}
+
+	#time{
+
+		font-size: 20px;
+		font-family: sans-serif;
+
+	}
+
 </style>
 
 <body>
@@ -45,6 +68,18 @@
 	Current temperature: <span id="temp">Loading ...</span><br>
 
 	Current humidity: <span id="hum">Loading ...</span>
+
+	</div>
+
+	<div id="select">
+
+		<select onchange="changeTime()" id="time">
+		  <option value="0">One hour</option>
+		  <option value="1">One day</option>
+		  <option value="2" selected="selected">One week</option>
+			<option value="3">One month</option>
+			<option value="4">All time</option>
+		</select>
 
 	</div>
 
@@ -60,6 +95,13 @@
 <script>
 
 
+
+var ctx = document.getElementById("chart").getContext('2d');
+var ctx2 = document.getElementById("chart2").getContext('2d');
+
+var myChart = new Chart(ctx, {});
+var myChart2 = new Chart(ctx, {});
+
 var socket = io();
 
 data=[];
@@ -68,46 +110,30 @@ labels=[];
 
 expe=[];
 
+alldata=[];
+
+var chosen = 2;
+
 
 var timestamp = new Date();
 timestamp = (timestamp-(timestamp%1000))/1000; //remove last 3 digits
 
-const time_in_seconds = [3600 /*seconds in one hour*/, 86400 /*seconds in a day*/, 604800 /*seconds in a week*/, 2592000 /*seconds in a 30 day month*/, timestamp /*all time*/];
+const data_for_charts = [[3600 /*seconds in one hour*/, 2 /*every n-th element*/], [6400 /*seconds in a day*/, 7], [604800 /*seconds in a week*/, 100], [2592000 /*seconds in a 30 day month*/, 100], [timestamp /*all time*/, 150]];
 
-var minTime=timestamp - time_in_seconds[2];
+var minTime=timestamp - data_for_charts[2][0];
+var step=data_for_charts[2][1];
 
 
 
 
 socket.on("alldata", function(info){
-	data=[];
-	hum=[];
-	labels=[];
 
-	expe=[];
-
-	console.log("Received data");
-
-	for(var x=0; x<info.length; x=x+100){
-
-		if(info[x].temperature<50 && info[x].time>minTime){
-
-			data.push(info[x].temperature);
-			hum.push(info[x].humidity);
-			var date=new Date(info[x].time*1000);
-			labels.push(date.getHours()+"h "+date.getDate()+"/"+(date.getMonth()+1));
-			//labels.push(info[x].time);
-			expe.push({x: date, y: info[x].temperature});
+	alldata = info;
 
 
-		}
+	console.log("Received all data");
 
-
-		}
-
-
-	redraw();
-
+	calculateData();
 
 
 	});
@@ -120,22 +146,61 @@ socket.on("data", function(data){
 
 	document.getElementById("hum").innerHTML=data[1]+"%";
 
-	//data.push();
-
 
   });
 
 
 
 
+function calculateData(){
+
+	data=[];
+	hum=[];
+	labels=[];
+	expe=[];
+
+
+	for(var x=0; x<alldata.length; x=x+step){
+
+		if(alldata[x].temperature<50 && alldata[x].time>minTime){
+
+			data.push(alldata[x].temperature);
+			hum.push(alldata[x].humidity);
+			var date=new Date(alldata[x].time*1000);
+			labels.push(date.getHours()+"h "+date.getDate()+"/"+(date.getMonth()+1));
+			expe.push({x: date, y: alldata[x].temperature});
+
+		}
+
+	}
+
+	redraw();
+
+}
+
+
+function changeTime(){
+
+	timestamp = new Date();
+	timestamp = (timestamp-(timestamp%1000))/1000; //remove last 3 digits
+
+	chosen = parseInt(document.getElementById("time").value);
+
+	minTime=timestamp - data_for_charts[chosen][0];
+	step=data_for_charts[chosen][1];
+
+	calculateData();
+
+}
+
 
 
 function redraw(){
 
+	myChart.destroy();
+	myChart2.destroy();
 
-
-	var ctx = document.getElementById("chart").getContext('2d');
-	var myChart = new Chart(ctx, {
+	myChart = new Chart(ctx, {
 		type: 'line',
 		data: {
 			labels: labels,
@@ -170,61 +235,9 @@ function redraw(){
 		}
 	});
 
-	/*
-	var ctx = document.getElementById("chart");
-	var myChart = new Chart(ctx, {
-	  type: 'line',
-	  data: {
-		datasets: [{
-		  label: 'temperature',
-		  data: expe,
-		  borderWidth: 0,
-		}],
-	  },
-	  options: {
-		title: {
-		  display: true,
-		  text: 'Chart.js - Fixed X and Y Axis',
-		},
-		scales: {
-		  xAxes: [{
-			type: 'linear',
-			position: 'bottom',
-			ticks: {
-
-			},
-			time: {
-
-				unit: "day",
-
-				}
-		  }],
-		  yAxes: [{
-			ticks: {
-
-				beginAtZero: true,
-
-			}
-		  }]
-		},
-		elements: {
-
-			point: {
-
-				radius: 2,
-
-				}
-
-			}
-	  }
-	});*/
 
 
-
-
-
-	var ctx2 = document.getElementById("chart2").getContext('2d');
-	var myChart2 = new Chart(ctx2, {
+	myChart2 = new Chart(ctx2, {
 		type: 'line',
 		data: {
 			labels: labels,
