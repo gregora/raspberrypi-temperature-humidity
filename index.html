@@ -114,6 +114,7 @@ alldata=[];
 
 var chosen = 2;
 
+var width = window.innerWidth;
 
 var timestamp = new Date();
 timestamp = (timestamp-(timestamp%1000))/1000; //remove last 3 digits
@@ -123,6 +124,7 @@ const data_for_charts = [[3600 /*seconds in one hour*/, 2 /*every n-th element*/
 var minTime=timestamp - data_for_charts[2][0];
 var step=data_for_charts[2][1];
 
+var dot_radius = 2;
 
 
 
@@ -133,7 +135,7 @@ socket.on("alldata", function(info){
 
 	console.log("Received all data");
 
-	calculateData();
+	changeTime();
 
 
 	});
@@ -197,6 +199,18 @@ function changeTime(){
 
 function redraw(){
 
+	width = window.innerWidth;
+
+	if(width<700){
+
+		dot_radius=0;
+
+	}else{
+
+		dot_radius=2;
+
+	}
+
 	myChart.destroy();
 	myChart2.destroy();
 
@@ -228,7 +242,7 @@ function redraw(){
 			elements:{
 				point: {
 
-						radius: 2,
+						radius: dot_radius,
 
 					}
 				}
@@ -267,7 +281,7 @@ function redraw(){
 			elements:{
 				point: {
 
-						radius: 2,
+						radius: dot_radius,
 
 					}
 				}
