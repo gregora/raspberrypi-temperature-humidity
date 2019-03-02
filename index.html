@@ -118,7 +118,7 @@ var chosen = 2;
 var timestamp = new Date();
 timestamp = (timestamp-(timestamp%1000))/1000; //remove last 3 digits
 
-const data_for_charts = [[3600 /*seconds in one hour*/, 2 /*every n-th element*/], [86400 /*seconds in a day*/, 7], [604800 /*seconds in a week*/, 100], [2592000 /*seconds in a 30 day month*/, 100], [timestamp /*all time*/, 150]];
+const data_for_charts = [[3600 /*seconds in one hour*/, 2 /*every n-th element*/], [86400 /*seconds in a day*/, 15], [604800 /*seconds in a week*/, 100], [2592000 /*seconds in a 30 day month*/, 100], [timestamp /*all time*/, 150]];
 
 var minTime=timestamp - data_for_charts[2][0];
 var step=data_for_charts[2][1];
