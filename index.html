@@ -119,13 +119,17 @@ var width = window.innerWidth;
 var timestamp = new Date();
 timestamp = (timestamp-(timestamp%1000))/1000; //remove last 3 digits
 
-const data_for_charts = [[3600 /*seconds in one hour*/, 2 /*every n-th element*/], [86400 /*seconds in a day*/, 15], [604800 /*seconds in a week*/, 100], [2592000 /*seconds in a 30 day month*/, 100], [timestamp /*all time*/, 150]];
+const data_for_charts = [[3600 /*seconds in one hour*/, 2 /*every n-th element*/], [86400 /*seconds in a day*/, 20], [604800 /*seconds in a week*/, 120], [2592000 /*seconds in a 30 day month*/, 360], [timestamp /*all time*/, 360]];
 
 var minTime=timestamp - data_for_charts[2][0];
 var step=data_for_charts[2][1];
 
 var dot_radius = 2;
 
+var minutes;
+var xtemp;
+var xhum;
+var xcount;
 
 
 socket.on("alldata", function(info){
@@ -162,14 +166,47 @@ function calculateData(){
 	expe=[];
 
 
-	for(var x=0; x<alldata.length; x=x+step){
+	for(var x=step/2; x+step/2<alldata.length; x=x+step){
 
-		if(alldata[x].temperature<50 && alldata[x].time>minTime){
+		if(alldata[x].time>minTime){
 
-			data.push(alldata[x].temperature);
-			hum.push(alldata[x].humidity);
+			xtemp=0;
+			xhum=0;
+			xcount=0;
+
+			for(var y=0; y<step-1 && x>y; y++){
+
+				if((alldata[x].time-alldata[x-y].time)<7200 && alldata[x-y].temperature<50){
+
+					xcount=xcount+1;
+					xtemp=xtemp+alldata[x-y].temperature;
+					xhum=xhum+alldata[x-y].humidity;
+
+				}
+			}
+
+			data.push((xtemp/xcount).toFixed(1));
+			hum.push((xhum/xcount).toFixed(1));
+
+
 			var date=new Date(alldata[x].time*1000);
-			labels.push(date.getHours()+"h "+date.getDate()+"/"+(date.getMonth()+1));
+
+			if(chosen==0 || chosen==1){
+				minutes=date.getMinutes();
+
+				if(minutes<10){
+					minutes="0"+String(minutes);
+				}
+
+				labels.push(date.getHours()+":"+minutes);
+			}else if(chosen==2){
+
+				labels.push(date.getHours()+"h "+date.getDate()+". "+(date.getMonth()+1)+".");
+
+			}else{
+				labels.push(date.getDate()+". "+(date.getMonth()+1)+".");
+			}
+
 			expe.push({x: date, y: alldata[x].temperature});
 
 		}
