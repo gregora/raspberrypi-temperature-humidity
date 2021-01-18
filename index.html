@@ -167,21 +167,13 @@
 		var ctx2 = document.getElementById("chart2").getContext('2d');
 
 		var temperature_chart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-        datasets: [{
-            label: 'Bar Dataset',
-            data: [10, 20, 30, 40]
-        }, {
-            label: 'Line Dataset',
-            data: [50, 50, 50, 50],
-
-            // Changes this dataset to become a line
-            type: 'line'
-        }],
-        labels: ['January', 'February', 'March', 'April']
-    },
-    options: options
+			type: 'line',
+	    data: {
+	        datasets: [{
+	            data: data.map(a => a.temperature),
+	            borderWidth: 1
+	        }]
+	    },
 	});
 
 	}
