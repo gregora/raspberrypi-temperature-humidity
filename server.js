@@ -15,11 +15,11 @@ app.get('/', function(req, res){
 });
 
 app.get('/data', function(req, res){
-  res.send(JSON.strigify(readData()));
+  res.send(JSON.stringify(readData()));
 });
 
 app.get('/alldata', function(req, res){
-  res.send(JSON.strigify());
+  res.send(JSON.stringify(readHistory()));
 });
 
 http.listen(8100, function(){
@@ -31,14 +31,13 @@ function readData(){
 
   var data = dht.read();
 
-  if(r.temperature==0 && r.humidity==0){
+  if(data.temperature==0 && data.humidity==0){
     data = readData();
   }
 
   return data;
 
 }
-
 
 
 var con = mysql.createConnection({
@@ -50,19 +49,27 @@ var con = mysql.createConnection({
 
 	});
 
+function readHistory(){
 
-con.connect(function(err){
+  con.connect(function(err) {
+    if (err) throw err;
+    con.query("SELECT * FROM customers", function (err, result, fields) {
+      if (err) throw err;
+      return result;
+    });
+  });
 
-	if(err) throw err;
-	console.log("connected");
+}
 
-	readDB();
+function saveToDB(){
 
-	var d, n;
-	var sql;
+  con.connect(function(err){
 
+  	if(err) throw err;
+  	console.log("connected");
 
-  function read(){
+  	var d, n;
+  	var sql;
 
     var r = readData();
 
@@ -81,11 +88,10 @@ con.connect(function(err){
 
   	}else{
   		console.log("false reading");
-      read();
+      saveToDB();
   	}
 
-  }
+  });
+}
 
-  setInterval(read, 60000);
-
-});
+setInterval(saveToDB, 60000);

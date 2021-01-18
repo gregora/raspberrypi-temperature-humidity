@@ -1,8 +1,8 @@
 <html>
-<head>
-<title>Temperature and humidity</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-</head>
+	<head>
+		<title>Temperature and humidity</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
 <style>
 
 	*{
@@ -91,6 +91,7 @@
 
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
 
 
@@ -142,17 +143,15 @@ socket.on("alldata", function(info){
 
 	});
 
-socket.on("data", function(data){
+function getCurrentData(){
 
-	console.log("Received current temperature and humidity data");
+	$.get("192.168.43.153/data", function(data){
+		data = JSON.parse(data);
+		document.getElementById("temp").innerHTML=data.temperature+"°C";
+		document.getElementById("hum").innerHTML=data.humidity+"%";
 
-	document.getElementById("temp").innerHTML=data[0]+"°C";
-
-	document.getElementById("hum").innerHTML=data[1]+"%";
-
-
-});
-
+	});
+}
 
 
 
