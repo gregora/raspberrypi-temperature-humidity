@@ -19,7 +19,9 @@ app.get('/data', function(req, res){
 });
 
 app.get('/alldata', function(req, res){
-  res.send(JSON.stringify(readHistory()));
+  readHistory(function(data){
+    res.send(JSON.stringify());
+  })
 });
 
 http.listen(8100, function(){
@@ -49,14 +51,14 @@ var con = mysql.createConnection({
 
 	});
 
-function readHistory(){
+function readHistory(callback){
 
   con.connect(function(err) {
-    if (err) throw err;
-    con.query("SELECT * FROM data", function (err, result, fields) {
-      if (err) throw err;
-      return result;
-    });
+    if(!err){
+      con.query("SELECT * FROM data", function (err, result, fields) {
+        callback(result);
+      });
+    }
   });
 
 }
