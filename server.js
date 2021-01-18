@@ -1,13 +1,23 @@
-var dht2=require("rpi-dht-sensor");
+var dht2 = require("rpi-dht-sensor");
 var path = require('path');
-var mysql=require("mysql");
+var mysql = require("mysql");
 
-var dht=new dht2.DHT11(18);
+var dht = new dht2.DHT11(18);
 
 var app = require('express')();
 var http = require('http').Server(app);
 
+
 const port = 8100
+
+const db_credentials = {
+
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "temperature",
+
+  }
 
 
 app.get('/', function(req, res){
@@ -32,8 +42,8 @@ app.get('/alldata', function(req, res){
   })
 });
 
-http.listen(8100, function(){
-  console.log('listening on *:8100');
+http.listen(port, function(){
+  console.log('listening on port ' + port);
 });
 
 
@@ -50,16 +60,10 @@ function readData(){
 }
 
 
-var con = mysql.createConnection({
-
-		host: "localhost",
-		user: "root",
-		password: "",
-		database: "temperature",
-
-	});
 
 function readHistory(startat, callback){
+
+  var con = mysql.createConnection(db_credentials);
 
   con.connect(function(err) {
     if(!err){
@@ -73,6 +77,8 @@ function readHistory(startat, callback){
 }
 
 function saveToDB(){
+
+  var con = mysql.createConnection(db_credentials);
 
   con.connect(function(err){
 

@@ -145,12 +145,21 @@ socket.on("alldata", function(info){
 
 function getCurrentData(){
 
-	$.get("192.168.43.153/data", function(data){
+	$.get("/data", function(data){
 		data = JSON.parse(data);
 		document.getElementById("temp").innerHTML=data.temperature+"°C";
 		document.getElementById("hum").innerHTML=data.humidity+"%";
 
 	});
+}
+
+
+function getHistory(startat, callback){
+
+		$.get("/alldata?startat=" + String(startat), function(data){
+			data = JSON.parse(data);
+			callback(data);
+		});
 }
 
 
