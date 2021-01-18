@@ -31,11 +31,12 @@ app.get('/data', function(req, res){
 app.get('/alldata', function(req, res){
   var d = new Date();
   var startat;
+  console.log(req.query.startat);
   try{
     startat = parseInt(req.query.startat);
   }catch(e){}
 
-  if(!startat) startat = d - 86400;
+  if(!startat){startat = parseInt(d/1000) - 86400;}
 
   readHistory(startat, function(data){
     res.send(JSON.stringify(data));
@@ -69,6 +70,7 @@ function readHistory(startat, callback){
     if(!err){
       con.query("SELECT * FROM data WHERE time > ?", [startat], function (err, result, fields) {
         if(err) console.log(":)");
+	console.log(startat);
         callback(result);
       });
     }else{}
