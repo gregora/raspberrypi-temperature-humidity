@@ -162,19 +162,27 @@
 
 	function renderChart(data){
 
+
 		var ctx = document.getElementById("chart").getContext('2d');
 		var ctx2 = document.getElementById("chart2").getContext('2d');
 
 		var temperature_chart = new Chart(ctx, {
-	    type: 'line',
-	    data: [data.temperature, data.time]
-		});
+    type: 'bar',
+    data: {
+        datasets: [{
+            label: 'Bar Dataset',
+            data: [10, 20, 30, 40]
+        }, {
+            label: 'Line Dataset',
+            data: [50, 50, 50, 50],
 
-
-		var humidity_chart = new Chart(ctx, {
-	    type: 'line',
-	    data: [data.humidity, data.time]
-		});
+            // Changes this dataset to become a line
+            type: 'line'
+        }],
+        labels: ['January', 'February', 'March', 'April']
+    },
+    options: options
+	});
 
 	}
 
