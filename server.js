@@ -31,7 +31,6 @@ app.get('/data', function(req, res){
 app.get('/alldata', function(req, res){
   var d = new Date();
   var startat;
-  console.log(req.query.startat);
   try{
     startat = parseInt(req.query.startat);
   }catch(e){}
@@ -70,7 +69,6 @@ function readHistory(startat, callback){
     if(!err){
       con.query("SELECT * FROM data WHERE time > ?", [startat], function (err, result, fields) {
         if(err) console.log(":)");
-	console.log(startat);
         callback(result);
       });
     }else{}
@@ -85,7 +83,6 @@ function saveToDB(){
   con.connect(function(err){
 
   	if(err) throw err;
-  	console.log("connected");
 
   	var d, n;
   	var sql;
