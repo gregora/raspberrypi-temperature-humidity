@@ -14,7 +14,7 @@ const db_credentials = {
 
     host: "localhost",
     user: "root",
-    password: "",
+    password: "root",
     database: "temperature",
 
   }
