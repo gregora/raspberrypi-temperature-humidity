@@ -90,7 +90,6 @@
 
 
 </body>
-<script src="/socket.io/socket.io.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
 <script>
 
@@ -129,7 +128,6 @@ var dot_radius = 2;
 var minutes;
 var xtemp;
 var xhum;
-var xcount;
 
 
 socket.on("alldata", function(info){
@@ -153,7 +151,7 @@ socket.on("data", function(data){
 	document.getElementById("hum").innerHTML=data[1]+"%";
 
 
-  });
+});
 
 
 
@@ -172,22 +170,16 @@ function calculateData(){
 
 			xtemp=0;
 			xhum=0;
-			xcount=0;
 
 			for(var y=0; y<step-1 && x>y; y++){
 
 				if((alldata[x].time-alldata[x-y].time)<7200 && alldata[x-y].temperature<50){
 
-					xcount=xcount+1;
 					xtemp=xtemp+alldata[x-y].temperature;
 					xhum=xhum+alldata[x-y].humidity;
 
 				}
 			}
-
-			data.push((xtemp/xcount).toFixed(1));
-			hum.push((xhum/xcount).toFixed(1));
-
 
 			var date=new Date(alldata[x].time*1000);
 
