@@ -19,8 +19,16 @@ app.get('/data', function(req, res){
 });
 
 app.get('/alldata', function(req, res){
-  readHistory(function(data){
-    res.send(JSON.stringify());
+  var d = new Date();
+  var startat;
+  try{
+    startat = parseInt(req.query.startat);
+  }catch(e){}
+
+  if(!startat) startat = d - 86400;
+
+  readHistory(startat, function(data){
+    res.send(JSON.stringify(data));
   })
 });
 
@@ -51,14 +59,15 @@ var con = mysql.createConnection({
 
 	});
 
-function readHistory(callback){
+function readHistory(startat, callback){
 
   con.connect(function(err) {
     if(!err){
-      con.query("SELECT * FROM data", function (err, result, fields) {
+      con.query("SELECT * FROM data WHERE time > ?", [startat], function (err, result, fields) {
+        if(err) console.log(":)");
         callback(result);
       });
-    }
+    }else{}
   });
 
 }
