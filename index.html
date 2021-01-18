@@ -162,7 +162,10 @@
 
 	function renderChart(data){
 
-		var options = {};
+		var options = {
+			tooltips: {enabled: false},
+			hover: {mode: null},
+		};
 
 		var ctx = document.getElementById("chart").getContext('2d');
 		var ctx2 = document.getElementById("chart2").getContext('2d');
@@ -173,6 +176,7 @@
 					labels: data.map(a => a.time),
 	        datasets: [{
 	            data: data.map(a => a.temperature),
+							pointRadius: 0,
 	            borderWidth: 1
 	        }]
 	    },
