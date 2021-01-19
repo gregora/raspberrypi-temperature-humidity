@@ -218,8 +218,8 @@
 
 	function timestampToDate(time){
 
-		var date = new Date(time * 1000),
-		return date.getDate() + "/" + date.getMonth() + " " + date.getHours() + ":" + date.getMinutes();
+		var date = new Date(time * 1000);
+		return (date.getDate() + "/" + date.getMonth() + " " + date.getHours() + ":" + date.getMinutes());
 	}
 
 	</script>
