@@ -1,0 +1,335 @@
+<html>
+<head>
+<title>Temperature and humidity</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<style>
+
+	*{
+
+		font-family: sans-serif;
+
+	}
+
+	canvas{
+
+		width: calc(100% - 20px) !important;
+		max-width: 1000px;
+		margin-top: 30px;
+		margin-bottom: 20px;
+		margin-left: 10px;
+
+	}
+
+	body {
+
+		max-width: 1020px;
+		margin: auto;
+
+	}
+
+	#data{
+
+		padding: 10px;
+		padding-top: 30px;
+		font-size: 20px;
+
+	}
+
+	span{
+
+		margin-bottom: 10px;
+
+	}
+
+	#select {
+
+		padding: 10px;
+		padding-top: 20px;
+		padding-bottom: 20px;
+		border-top: solid grey 1px;
+		margin-top: 20px;
+
+	}
+
+	#time{
+
+		font-size: 20px;
+		font-family: sans-serif;
+
+	}
+
+</style>
+
+<body>
+
+	<div id="data">
+
+	Current temperature: <span id="temp">Loading ...</span><br>
+
+	Current humidity: <span id="hum">Loading ...</span>
+
+	</div>
+
+	<div id="select">
+
+		<select onchange="changeTime()" id="time">
+		  <option value="0">One hour</option>
+		  <option value="1">One day</option>
+		  <option value="2" selected="selected">One week</option>
+			<option value="3">One month</option>
+			<option value="4">All time</option>
+		</select>
+
+	</div>
+
+	<canvas id="chart"></canvas>
+
+	<canvas id="chart2"></canvas>
+
+
+
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+<script>
+
+
+
+var ctx = document.getElementById("chart").getContext('2d');
+var ctx2 = document.getElementById("chart2").getContext('2d');
+
+var myChart = new Chart(ctx, {});
+var myChart2 = new Chart(ctx, {});
+
+var socket = io();
+
+data=[];
+hum=[];
+labels=[];
+
+expe=[];
+
+alldata=[];
+
+var chosen = 2;
+
+var width = window.innerWidth;
+
+var timestamp = new Date();
+timestamp = (timestamp-(timestamp%1000))/1000; //remove last 3 digits
+
+const data_for_charts = [[3600 /*seconds in one hour*/, 2 /*every n-th element*/], [86400 /*seconds in a day*/, 20], [604800 /*seconds in a week*/, 120], [2592000 /*seconds in a 30 day month*/, 360], [timestamp /*all time*/, 360]];
+
+var minTime=timestamp - data_for_charts[2][0];
+var step=data_for_charts[2][1];
+
+var dot_radius = 2;
+
+var minutes;
+var xtemp;
+var xhum;
+
+
+setInterval(function(){
+
+	
+	
+
+}, 60000);
+
+socket.on("alldata", function(info){
+
+	alldata = info;
+
+
+	        document.getElementById("temp").innerHTML=data[0]+"  C";
+
+        document.getElementById("hum").innerHTML=data[1]+"%";console.log("Received all data");
+
+	changeTime();
+
+
+	});
+
+socket.on("data", function(data){
+
+	console.log("Received current temperature and humidity data");
+
+	document.getElementById("temp").innerHTML=data[0]+"°C";
+
+	document.getElementById("hum").innerHTML=data[1]+"%";
+
+
+});
+
+
+
+
+function calculateData(){
+
+	data=[];
+	hum=[];
+	labels=[];
+	expe=[];
+
+
+	for(var x=step/2; x+step/2<alldata.length; x=x+step){
+
+		if(alldata[x].time>minTime){
+
+			xtemp=0;
+			xhum=0;
+
+			for(var y=0; y<step-1 && x>y; y++){
+
+				if((alldata[x].time-alldata[x-y].time)<7200 && alldata[x-y].temperature<50){
+
+					xtemp=xtemp+alldata[x-y].temperature;
+					xhum=xhum+alldata[x-y].humidity;
+
+				}
+			}
+
+			var date=new Date(alldata[x].time*1000);
+
+			if(chosen==0 || chosen==1){
+				minutes=date.getMinutes();
+
+				if(minutes<10){
+					minutes="0"+String(minutes);
+				}
+
+				labels.push(date.getHours()+":"+minutes);
+			}else if(chosen==2){
+
+				labels.push(date.getHours()+"h "+date.getDate()+". "+(date.getMonth()+1)+".");
+
+			}else{
+				labels.push(date.getDate()+". "+(date.getMonth()+1)+".");
+			}
+
+			expe.push({x: date, y: alldata[x].temperature});
+
+		}
+
+	}
+
+	redraw();
+
+}
+
+
+function changeTime(){
+
+	timestamp = new Date();
+	timestamp = (timestamp-(timestamp%1000))/1000; //remove last 3 digits
+
+	chosen = parseInt(document.getElementById("time").value);
+
+	minTime=timestamp - data_for_charts[chosen][0];
+	step=data_for_charts[chosen][1];
+
+	calculateData();
+
+}
+
+
+
+function redraw(){
+
+	width = window.innerWidth;
+
+	if(width<700){
+
+		dot_radius=0;
+
+	}else{
+
+		dot_radius=2;
+
+	}
+
+	myChart.destroy();
+	myChart2.destroy();
+
+	myChart = new Chart(ctx, {
+		type: 'line',
+		data: {
+			labels: labels,
+
+			datasets: [{
+				label: 'temperature',
+				data: data,
+				borderWidth: 0,
+			}]
+		},
+		options: {
+			scales: {
+				yAxes: [{
+					ticks: {
+						beginAtZero:true,
+					}
+				}],
+				xAxes: [{
+					ticks: {
+						autoSkip: true,
+						autoSkipPadding: 5,
+					}
+				}],
+			},
+			elements:{
+				point: {
+
+						radius: dot_radius,
+
+					}
+				}
+		}
+	});
+
+
+
+	myChart2 = new Chart(ctx2, {
+		type: 'line',
+		data: {
+			labels: labels,
+
+			datasets: [{
+				label: 'humidity',
+				data: hum,
+				borderWidth: 0,
+			}]
+		},
+		options: {
+			scales: {
+				yAxes: [{
+					ticks: {
+						beginAtZero:true,
+					}
+				}],
+				xAxes: [{
+
+					ticks: {
+						autoSkip: true,
+						autoSkipPadding: 5,
+					}
+
+				}]
+			},
+			elements:{
+				point: {
+
+						radius: dot_radius,
+
+					}
+				}
+		}
+	});
+
+
+}
+
+
+
+</script>
+</html>

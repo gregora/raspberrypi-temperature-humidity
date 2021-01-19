@@ -75,8 +75,8 @@
 
 			<select onchange="changeTime()" id="time">
 			  <option value="0">One hour</option>
-			  <option value="1">One day</option>
-			  <option value="2" selected="selected">One week</option>
+			  <option value="1" selected=selected>One day</option>
+			  <option value="2">One week</option>
 				<option value="3">One month</option>
 				<option value="4">All time</option>
 			</select>
@@ -192,7 +192,9 @@
 							label: "temperature",
 							data: data.map(a => a.temperature),
 							pointRadius: 0,
-	            borderWidth: 0
+	            borderWidth: 0,
+		    backgroundColor: "rgba(255, 0, 0, 0.6)",
+		    borderColor: "rgba(207, 52, 52, 0.0)"
 	        }]
 	    },
 			options: options
@@ -207,7 +209,9 @@
 						label: "humidity",
 						data: data.map(a => a.humidity),
 						pointRadius: 0,
-						borderWidth: 0
+						borderWidth: 0,
+						backgroundColor: "rgba(0, 100, 255, 0.6)",
+						borderColor: "rgba(0, 0, 0, 0)"
 				}]
 		},
 		options: options
@@ -221,7 +225,9 @@
 	function timestampToDate(time){
 
 		var date = new Date(time * 1000);
-		return (date.getDate() + "/" + (date.getMonth() + 1) + " " + date.getHours() + ":" + date.getMinutes());
+		var minutes = date.getMinutes();
+		if(minutes < 10) minutes = "0" + minutes;
+		return (date.getDate() + "/" + (date.getMonth() + 1) + " " + date.getHours() + ":" + minutes);
 	}
 
 	</script>
