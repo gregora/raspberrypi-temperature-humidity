@@ -189,7 +189,8 @@
 	    data: {
 					labels: (data.map(a => a.time)).map(x => timestampToDate(x)),
 	        datasets: [{
-	            data: data.map(a => a.temperature),
+							label: "temperature",
+							data: data.map(a => a.temperature),
 							pointRadius: 0,
 	            borderWidth: 0
 	        }]
@@ -203,6 +204,7 @@
 		data: {
 				labels: (data.map(a => a.time)).map(x => timestampToDate(x)),
 				datasets: [{
+						label: "humidity",
 						data: data.map(a => a.humidity),
 						pointRadius: 0,
 						borderWidth: 0
@@ -219,7 +221,7 @@
 	function timestampToDate(time){
 
 		var date = new Date(time * 1000);
-		return (date.getDate() + "/" + date.getMonth() + " " + date.getHours() + ":" + date.getMinutes());
+		return (date.getDate() + "/" + (date.getMonth() + 1) + " " + date.getHours() + ":" + date.getMinutes());
 	}
 
 	</script>
