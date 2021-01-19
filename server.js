@@ -110,4 +110,4 @@ function saveToDB(){
   });
 }
 
-setInterval(saveToDB, 60000);
+setInterval(saveToDB, 300000);
