@@ -172,6 +172,13 @@
 		var options = {
 			tooltips: {enabled: false},
 			hover: {mode: null},
+			scales: {
+	        yAxes: [{
+	            ticks: {
+	                beginAtZero: true
+	            }
+	        }]
+	    }
 		};
 
 		var ctx = document.getElementById("chart").getContext('2d');
@@ -180,16 +187,39 @@
 		temperature_chart = new Chart(ctx, {
 			type: 'line',
 	    data: {
-					labels: data.map(a => a.time),
+					labels: (data.map(a => a.time)).map(x => timestampToDate(x)),
 	        datasets: [{
 	            data: data.map(a => a.temperature),
 							pointRadius: 0,
-	            borderWidth: 1
+	            borderWidth: 0
 	        }]
 	    },
 			options: options
 	});
 
+
+	humidity_chart = new Chart(ctx2, {
+		type: 'line',
+		data: {
+				labels: (data.map(a => a.time)).map(x => timestampToDate(x)),
+				datasets: [{
+						data: data.map(a => a.humidity),
+						pointRadius: 0,
+						borderWidth: 0
+				}]
+		},
+		options: options
+});
+
+
+
+	}
+
+
+	function timestampToDate(time){
+
+		var date = new Date(time * 1000),
+		return date.getDate() + "/" + date.getMonth() + " " + date.getHours() + ":" + date.getMinutes();
 	}
 
 	</script>
