@@ -89,23 +89,21 @@ function saveToDB(){
 
     var r = readData();
 
-  	if(r.temperature!=0 && r.humidity!=0){
-
-  		d = new Date();
-  		n = d.getTime();
-
-  		sql="INSERT INTO data (temperature, humidity, time) VALUES ?";
-
-  		values=[[r.temperature, r.humidity, n/1000]];
-
-  		con.query(sql, [values], function (err, result) {
-  		    if (err) throw err;
-  		});
-
-  	}else{
-  		console.log("false reading");
-      saveToDB();
+  	while(r.temperature==0 && r.humidity==0){
+       r = readData();
   	}
+
+	d = new Date();
+	n = d.getTime();
+
+	sql="INSERT INTO data (temperature, humidity, time) VALUES ?";
+
+	values=[[r.temperature, r.humidity, n/1000]];
+
+	con.query(sql, [values], function (err, result) {
+	    if (err) throw err;
+	});
+
 
   });
 }
